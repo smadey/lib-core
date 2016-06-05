@@ -63,13 +63,49 @@ export function dateFormat(obj, format = 'YYYY-MM-DD HH:mm:ss') {
   }
 
   Object.keys(o).forEach((k) => {
+    const v = `${o[k]}`;
+
     if (new RegExp(`(${k})`).test(dateStr)) {
       dateStr = dateStr.replace(RegExp.$1,
-        RegExp.$1.length === 1 ? o[k] : `00${o[k]}`.substr(`${o[k]}`.length));
+        RegExp.$1.length === 1 ? o[k] : (`00${v}`).substr(v.length));
     }
   });
 
   return dateStr;
+}
+
+export function dateTransform(obj, transform) {
+  const date = dateCreate(obj);
+
+  transform.split('|').forEach((d) => {
+    const match = d.match(/(-?\d+)(\w+)/);
+
+    if (match) {
+      const num = parseInt(match[1], 10);
+      const key = match[2];
+
+      switch (key) {
+        case 'day':
+          date.setDate(date.getDate() + num);
+          break;
+        case 'hour':
+          date.setHours(date.getHours() + num);
+          break;
+        case 'minute':
+          date.setMinutes(date.getMinutes() + num);
+          break;
+        case 'second':
+          date.setSeconds(date.getSeconds() + num);
+          break;
+        case 'millisecond':
+          date.setMilliseconds(date.getMilliseconds() + num);
+          break;
+        default:
+      }
+    }
+  });
+
+  return date;
 }
 
 export function dateStartOf(obj, key = 'day') {
@@ -95,5 +131,6 @@ export default {
   create: dateCreate,
   duration: dateDuration,
   format: dateFormat,
+  transform: dateTransform,
   startOf: dateStartOf,
 };
